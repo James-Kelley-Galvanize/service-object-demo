@@ -1,24 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import pokeAPI from "./services/api_service";
+import { useEffect, useState } from "react";
 
 function App() {
-  return (
+  let [pokeData, setPokeData] = useState(false);
+
+  useEffect(() => {
+    pokeAPI.getPokemon("zapdos").then((data) => {
+      setPokeData(data);
+    });
+  }, []);
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    let searchTerm = document.querySelector("#poke-search").value;
+
+    pokeAPI.getPokemon(searchTerm).then((data) => {
+      setPokeData(data);
+    });
+  }
+
+  return pokeData ? (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <div>{pokeData.name}</div>
+        <div>{pokeData.id}</div>
+        <div>{pokeData.types[0].type.name}</div>
+        <img src={pokeData.sprites.front_default} />
+        <br />
+        <form onSubmit={handleSubmit}>
+          <input id="poke-search" type="text" />
+          <input type="submit" />
+        </form>
       </header>
     </div>
+  ) : (
+    <>Loading</>
   );
 }
 

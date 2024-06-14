@@ -1,70 +1,59 @@
-# Getting Started with Create React App
+# Using and Testing a Service Object
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This repo uses a simple React app (bootstrapped with Create React App) to demonstrate some object-oriented separation-of-concerns principles and demonstrate isolating API interaction to an object-oriented Service Object interface that allows easier mocking of API interaction with Jest tests via a simple manual mock implementation of the same API Service Object interface.
 
-## Available Scripts
+## Separation-of-Concerns
+In order to keep all of the API-based asynchronous requests and logic separate from the components of this React app, a Service Object (i.e. an object containing asynchronous methods representing all of the different types of API calls the app might need to make) is declared and exported in `src/services/api_service.js`.  This service represents a nice clean object-oriented approach to separation-of-concerns, keeping app logic and fetch logic essentially entirely separate.  If you need to make a different type of API call, you can now simply add a method that does what you need it to onto the api service object and import that method wherever it is needed in your app.
 
-In the project directory, you can run:
+Asynchronous methods are implemented to request Pokemon, Games (from a given Generation), and Berries.
 
-### `npm start`
+## Mocking the Service Object
+Jest can do some nice mocking for us. Creating a mock implementation of the Service Object allows us to mock the data expected from the API without having to repeatedly mock `fetch` in your tests.  Jest allows you to use a specific format to do mocks of modules like this one - create a file with the same name as the module file to be mocked and place it in a `/__mocks__/` directory at the same level as the  module to be mocked.  In this case, that means that this mock implementation is located in the `/src/services/__mocks__/api_service.js` file.  This file exports an object that resembles the Service Object that interacts with the API, but only simulates that asynchronous interaction by using the mock data exported from the `/src/services/__mocks__/api_service.js` file. 
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+All of the asynchronous methods on the API Service Object are mocked.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Diagram Showing Key Modifications for Mocking
+In the following diagram, you can see which directories/files needed to be modified and which directories/files needed to be created in order to make the tests that leverage API mocking contained in App.test.js work.
 
-### `npm test`
+### KEY
+🚧 = Created
+🛠️ = Modified
+```
+.
+├── App.css
+├── App.js
+├── App.test.js
+├── index.css
+├── index.js
+├── logo.svg
+├── reportWebVitals.js
+├── 🚧services
+│   ├── 🚧__mocks__
+│   │   ├── 🚧api_service.js 
+│   │   └── 🚧mockData.js 
+│   └── 🚧api_service.js
+└── 🛠️setupTests.js
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Other Modifications
+The following warning:
+```bash
+    Warning: `ReactDOMTestUtils.act` is deprecated in favor of `React.act`. Import `act` from `react` instead of `react-dom/test-utils`. See https://react.dev/warnings/react-dom-test-utils for more info.
+```
+will go away if the package.json is updated to have the `dependencies` entry for `@testing-library/react` updated from the CRA default:
+```json
+"dependencies": {
+  ...
+    "@testing-library/react": "^13.4.0",
+  ...
+  },
+```
+to a more recent version:
+```json
+"dependencies":{
+  ...
+    "@testing-library/react": "^16.0.0",
+  ...
+  ,
+```
+**NOTE: After making this change and saving `package.json`, you will need to run `npm install` again to make sure the updated version is installed.
