@@ -58,6 +58,6 @@ to a more recent version:
   ...
     "@testing-library/react": "^16.0.0",
   ...
-  ,
+  },
 ```
 **NOTE: After making this change and saving `package.json`, you will need to run `npm install` again to make sure the updated version is installed.
